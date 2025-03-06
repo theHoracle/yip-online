@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle, Clock } from "lucide-react";
 
-// Memoized order row component for performance
 const OrderRow = ({
   order,
   onCompleteOrder,
@@ -71,7 +70,6 @@ const OrderRow = ({
   );
 };
 
-// Memoize the OrderRow component
 const MemoizedOrderRow = React.memo(OrderRow);
 
 export default function OrdersTable({
@@ -84,7 +82,7 @@ export default function OrdersTable({
   orders: Order[];
   loading: boolean;
   statusFilter: string;
-  sortConfig: any;
+  sortConfig: { key: string; direction: string };
   onCompleteOrder: (orderId: string) => void;
 }) {
   // Filter and sort orders

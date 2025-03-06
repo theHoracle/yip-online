@@ -6,7 +6,7 @@ import OrderFilters from "@/components/order-filters";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export default function OrdersPage() {
+export default function Page() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -35,7 +35,7 @@ export default function OrdersPage() {
       });
       setLoading(false);
     }
-  }, [toast]);
+  }, [orders]);
 
   // Initial fetch
   useEffect(() => {

@@ -17,6 +17,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dispatch, SetStateAction } from "react";
 
 export default function OrderFilters({
   statusFilter,
@@ -24,18 +25,18 @@ export default function OrderFilters({
   sortConfig,
   setSortConfig,
 }: {
-  statusFilter: any;
-  setStatusFilter: any;
-  sortConfig: any;
-  setSortConfig: any;
+  statusFilter: string;
+  setStatusFilter: Dispatch<SetStateAction<string>>;
+  sortConfig: { key: string; direction: string };
+  setSortConfig: Dispatch<SetStateAction<{ key: string; direction: string }>>;
 }) {
   // Handle status filter change
-  const handleStatusChange = (value) => {
+  const handleStatusChange = (value: string) => {
     setStatusFilter(value);
   };
 
   // Handle sort change
-  const handleSortChange = (key) => {
+  const handleSortChange = (key: string) => {
     if (sortConfig.key === key) {
       // Toggle direction if same key
       setSortConfig({
