@@ -1,101 +1,101 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect, useCallback } from "react";
+import OrdersTable from "@/components/orders-table";
+import OrderFilters from "@/components/order-filters";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
+export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortConfig, setSortConfig] = useState({
+    key: "timestamp",
+    direction: "desc",
+  });
+
+  const router = useRouter();
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      const response = await fetch("/api/orders");
+      const data = await response.json();
+      console.log("Data: ", data);
+      setOrders(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      toast("Error", {
+        description: "Failed to fetch order. Try again later.",
+        action: {
+          label: "Refresh",
+          onClick: () => router.refresh(),
+        },
+      });
+      setLoading(false);
+    }
+  }, [toast]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchOrders();
+
+    // polling for real-time updates (every 20 seconds)
+    const intervalId = setInterval(fetchOrders, 20000);
+
+    return () => clearInterval(intervalId);
+  }, [fetchOrders]);
+
+  // Handle marking order as completed
+  const handleCompleteOrder = async (orderId: string) => {
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "Completed" }),
+      });
+
+      if (response.ok) {
+        setOrders(
+          orders.map((order) =>
+            order.id === orderId ? { ...order, status: "Completed" } : order,
+          ),
+        );
+
+        toast("Order Completed", {
+          description: `Order ${orderId} has been marked as completed.`,
+        });
+      } else {
+        throw new Error("Failed to update order");
+      }
+    } catch (error) {
+      console.error("Error completing order:", error);
+      toast("Error", {
+        description: "Failed to complete order. Please try again.",
+      });
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="max-w-7xl px-4 md:px-10 lg:px-20 mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">Restaurant Orders</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <OrderFilters
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        sortConfig={sortConfig}
+        setSortConfig={setSortConfig}
+      />
+      <OrdersTable
+        orders={orders}
+        loading={loading}
+        statusFilter={statusFilter}
+        sortConfig={sortConfig}
+        onCompleteOrder={handleCompleteOrder}
+      />
     </div>
   );
 }
