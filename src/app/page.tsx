@@ -35,7 +35,7 @@ export default function Page() {
       });
       setLoading(false);
     }
-  }, [orders]);
+  }, [router]);
 
   // Initial fetch
   useEffect(() => {
